@@ -112,7 +112,6 @@ selfproxy uri = do
                           , requestBody = RequestBodyLBS $ S.unBody serverRequestBody
                           , requestHeaders = [] ++ contentType ++ auth ++ accept
                           }    
-    putStrLn $ show clientRq
     httpLbs clientRq manager
 
   let type' = maybe "" id $ lookup "Content-Type" $ responseHeaders res
