@@ -14,6 +14,9 @@ port: 80
 # 路由选项 - 更改即时生效
 # 路由会从前向后匹配，直到匹配成功
 routers:
+- path: /adam/api
+  rewrite: https://m.vipfengxiao.com/adam/api
+  originHeader: diqye.com
 - path: /api/gw
   rewrite: https://test3-www.vipfengxiao.com/api/gw
 - path: /vipbclass

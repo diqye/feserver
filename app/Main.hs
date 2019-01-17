@@ -26,6 +26,7 @@ import Control.Applicative((<|>))
 data ServerRouter = ServerRouter { serverPath :: String
                                  , serverRewrite :: String
                                  , locationPath :: String
+                                 , originHeader :: String
                                  }
 data ServerConfig = ServerConfig { serverPort :: Int
                                  , serverRouters :: [ServerRouter]
@@ -40,6 +41,8 @@ instance Y.FromJSON ServerRouter where
     (v .: "rewrite" <|> return "none")
     <*>
     (v .: "locationPath" <|> return "none")
+    <*>
+    (v .: "originHeader" <|> return "none")
 
 instance Y.FromJSON ServerConfig where
   parseJSON  = Y.withObject "config" $ \v ->
@@ -52,7 +55,7 @@ instance Y.FromJSON ServerConfig where
 main :: IO ()
 main = do
   hSetBuffering stdout LineBuffering
-  putStrLn "==== v0.0.2 ==="
+  putStrLn "==== v1.0.0 ==="
   config <- parsingConfig
   let sport = serverPort config
   putStrLn $ "==== 服务启动 port:" ++ show sport ++ " ===="
@@ -75,12 +78,12 @@ enterRouter = do
   msum $ map buildRouter $ serverRouters config
 
 buildRouter :: ServerRouter -> S.ServerPart S.Response
-buildRouter (ServerRouter path "none" location) =
+buildRouter (ServerRouter path "none" location _) =
   if path == "/" then logic else S.dirs path logic
   where logic = S.serveDirectory S.EnableBrowsing ["index.html","diqye.html"] location
-buildRouter (ServerRouter path host "none") = 
+buildRouter (ServerRouter path host "none" origin) = 
   if path == "/" then logic else S.dirs path logic
-  where logic = selfproxy host
+  where logic = selfproxy host origin  
 
 {-
 enterRouter = msum
@@ -93,8 +96,8 @@ enterRouter = msum
  ]
  -}
 
-selfproxy :: String -> S.ServerPart S.Response
-selfproxy uri = do
+selfproxy :: String -> String -> S.ServerPart S.Response
+selfproxy uri originHeader = do
   serverRq <- S.askRq
   maybeV <- S.getHeaderM "Authorization"
   let auth = maybe [] (pure . ((,) "Authorization")) maybeV
@@ -103,7 +106,8 @@ selfproxy uri = do
   acceptMaybe <- S.getHeaderM "Accept"
   let accept = maybe [] (pure . ((,) "Accept")) acceptMaybe
   originMaybe <- S.getHeaderM "origin"
-  let origin = maybe [] (pure. ((,) "origin")) originMaybe
+  let origin = maybe [] (pure . ((,) "origin")) originMaybe
+  let rorigin = if originHeader == "none" then origin else [("origin", fromString originHeader)]
   res <- liftIO $ do 
     initRq <- parseRequest uri
     manager <- newManager tlsManagerSettings
@@ -112,8 +116,9 @@ selfproxy uri = do
                           , queryString = fromString $ S.rqQuery serverRq
                           , method = fromString $ show $ S.rqMethod serverRq
                           , requestBody = RequestBodyLBS $ S.unBody serverRequestBody
-                          , requestHeaders = [] ++ contentType ++ auth ++ accept ++ origin
+                          , requestHeaders = [] ++ contentType ++ auth ++ accept ++ rorigin
                           }    
+    putStrLn $ show $ clientRq
     httpLbs clientRq manager
 
   let type' = maybe "" id $ lookup "Content-Type" $ responseHeaders res
