@@ -102,6 +102,8 @@ selfproxy uri = do
   let contentType = maybe [] (pure . ((,) "Content-Type")) contentType'
   acceptMaybe <- S.getHeaderM "Accept"
   let accept = maybe [] (pure . ((,) "Accept")) acceptMaybe
+  originMaybe <- S.getHeaderM "origin"
+  let origin = maybe [] (pure. ((,) "origin")) originMaybe
   res <- liftIO $ do 
     initRq <- parseRequest uri
     manager <- newManager tlsManagerSettings
@@ -110,7 +112,7 @@ selfproxy uri = do
                           , queryString = fromString $ S.rqQuery serverRq
                           , method = fromString $ show $ S.rqMethod serverRq
                           , requestBody = RequestBodyLBS $ S.unBody serverRequestBody
-                          , requestHeaders = [] ++ contentType ++ auth ++ accept
+                          , requestHeaders = [] ++ contentType ++ auth ++ accept ++ origin
                           }    
     httpLbs clientRq manager
 
