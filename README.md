@@ -17,6 +17,7 @@ routers:
 - path: /api/gw
   rewrite: https://www.vipfengxiao.com/api/gw
   # 这里添加需要的项目
+  # 一般来说这里只需要一个本地运行的项目
 - path: /vipbclass
   rewrite: http://localhost:8082/vipbclass
   # 这里添加个人自定义的目录
