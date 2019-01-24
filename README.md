@@ -31,3 +31,13 @@ routers:
 ## Mac 端工具下载
 [feserver](./feserver)
 
+## 使用
+1. 确保上文中的配置文件保存至 feserver.yaml
+2. 工具下载完成
+3. 进入下载目录
+4. 执行下面命令
+```bash
+chmod 777 feserver
+nohup ./feserver &
+```
+
