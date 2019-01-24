@@ -15,7 +15,7 @@ port: 80
 routers:
   # 这里添加需要的接口
 - path: /api/gw
-  rewrite: https://mgt.vipfengxiao.com/api/gw
+  rewrite: https://www.vipfengxiao.com/api/gw
   # 这里添加需要的项目
 - path: /vipbclass
   rewrite: http://localhost:8082/vipbclass
