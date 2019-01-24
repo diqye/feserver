@@ -8,33 +8,23 @@
 
 ## 配置文件
 ```yaml
-# 设置80需要 sudo 执行服务程序
 port: 80
 
 # 路由选项 - 更改即时生效
 # 路由会从前向后匹配，直到匹配成功
 routers:
-- path: /adam/api
-  rewrite: https://m.vipfengxiao.com/adam/api
-  originHeader: diqye.com
+  # 这里添加需要的接口
 - path: /api/gw
-  rewrite: https://test3-www.vipfengxiao.com/api/gw
+  rewrite: https://mgt.vipfengxiao.com/api/gw
+  # 这里添加需要的项目
 - path: /vipbclass
-  rewrite: http://test3-www.vipfengxiao.com/vipbclass
-- path: /classroom
-  rewrite: http://172.23.98.166:8080/classroom
-- path: /mobile
-  rewrite: https://test3-m.vipfengxiao.com/mobile
-- path: /static
-  locationPath: /Users/diqye
-- path: /js
-  # 文件服务，如果文件夹内有index.html,diqye.html
-  # 则渲染
-  # 否则需要完整路径
-  locationPath: /Users/diqye/js
+  rewrite: http://localhost:8082/vipbclass
+  # 这里添加个人自定义的目录
+  # - path: /home
+  # locationPath: /
 # 匹配所有
 - path: /
-  # locationPath: /
+  rewrite: https://www.vipfengxiao.com/
 ```
 文件放置`~/feserver.yaml`
 
