@@ -44,3 +44,11 @@ chmod 777 feserver
 nohup ./feserver &
 ```
 
+## 使用pm2 如果报权限问题
+```bash
+➜  happstack-myproxy git:(master) ✗ which pm2
+/usr/local/bin/pm2
+➜  happstack-myproxy git:(master) ✗ chmod -R 777 /usr/local/bin/pm2
+```
+然后再用 `sudo pm2 start feserver`
+
