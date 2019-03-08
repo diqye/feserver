@@ -13,17 +13,13 @@ port: 80
 # 路由选项 - 更改即时生效
 # 路由会从前向后匹配，直到匹配成功
 routers:
-  # 这里添加需要的接口
-- path: /api/gw
-  rewrite: https://www.vipfengxiao.com/api/gw
-  # 这里添加需要的项目
   # 一般来说这里只需要一个本地运行的项目
 - path: /vipbclass
   rewrite: http://localhost:8080/vipbclass
-  # 这里添加个人自定义的目录
+  # 这里添加个人自定义的目录 访问/home 浏览/目录
   # - path: /home
   # locationPath: /
-# 匹配所有
+# 匹配所有，联调什么环境使用什么域名
 - path: /
   rewrite: https://www.vipfengxiao.com/
 ```
