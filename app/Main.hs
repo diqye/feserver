@@ -7,7 +7,7 @@ import System.Directory
 import qualified Happstack.Server as S
 import Network.HTTP.Client
 import Network.HTTP.Client.TLS
-import Control.Monad(msum,join)
+import Control.Monad(msum,join,guard)
 import Control.Concurrent.MVar(readMVar)
 import System.IO
 import Control.Monad.IO.Class(liftIO,MonadIO)
@@ -80,7 +80,7 @@ enterRouter = do
 buildRouter :: ServerRouter -> S.ServerPart S.Response
 buildRouter (ServerRouter path "none" location _) =
   if path == "/" then logic else S.dirs path logic
-  where logic = S.serveDirectory S.EnableBrowsing ["index.html","diqye.html"] location
+  where logic = S.serveDirectory S.EnableBrowsing ["index.html","mock.json"] location
 buildRouter (ServerRouter path host "none" origin) = 
   if path == "/" then logic else S.dirs path logic
   where logic = selfproxy host origin  
@@ -98,6 +98,7 @@ enterRouter = msum
 
 selfproxy :: String -> String -> S.ServerPart S.Response
 selfproxy uri originHeader = do
+  liftIO $ putStrLn uri
   serverRq <- S.askRq
   maybeV <- S.getHeaderM "Authorization"
   let auth = maybe [] (pure . ((,) "Authorization")) maybeV
@@ -123,6 +124,7 @@ selfproxy uri originHeader = do
 
   let type' = maybe "" id $ lookup "Content-Type" $ responseHeaders res
   S.setHeaderM "Content-Type" $ T.unpack $ E.decodeUtf8 type'
+  guard $ (statusCode $ responseStatus res) /= 404
   S.resp (statusCode $ responseStatus res) $ S.toResponse $ responseBody res
 
 {-
