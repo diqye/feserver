@@ -1,6 +1,6 @@
-name:                happstack-myproxy
+name:                hs-feserver
 version:             0.1.0.0
-github:              "diqye/happstack-myproxy"
+github:              "diqye/hs-feserver"
 license:             BSD3
 author:              "diqye"
 maintainer:          "262666212@qq.com"
@@ -17,14 +17,15 @@ extra-source-files:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/diqye/happstack-myproxy#readme>
+description:         Please see the README on GitHub at <https://github.com/diqye/hs-feserver#readme>
 
 dependencies:
 - base >= 4.7 && < 5
 - aeson
+- binary
+- AppM
 - scientific
 - unordered-containers
-- happstack-server
 - yaml
 - text
 - bytestring
@@ -36,28 +37,19 @@ dependencies:
 - filepath
 - base64-bytestring
 - http-types
+- string-conversions
+- io-streams
 
 library:
   source-dirs: src
 
 executables:
-  happstack-myproxy-exe:
+  hs-feserver-exe:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
-    dependencies:
-    - happstack-myproxy
+    dependencies: []
 
-tests:
-  happstack-myproxy-test:
-    main:                Spec.hs
-    source-dirs:         test
-    ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
-    dependencies:
-    - happstack-myproxy
