@@ -47,6 +47,37 @@ nohup ./feserver &
 2. localhost/gw/api/xxx 代理至 https://www.vipfengxiao.com/gw/api/xx
 3. 配置文件即改即生效
 
+### 5. https协议支持
+配置文件中增加 
+
+```yaml
+port: 80
+# https支持
+HTTPSPort: 443
+HTTPSCertificate: /Users/diqye/Downloads/https/key-cert.pem
+HTTPSKey: /Users/diqye/Downloads/https/key.pem
+```
+完整示例
+
+```yaml
+port: 80
+HTTPSPort: 443
+HTTPSCertificate: /Users/diqye/Downloads/https/key-cert.pem
+HTTPSKey: /Users/diqye/Downloads/https/key.pem
+routers:
+- startWith: /douzhuanxingyi
+  rewrite: http://localhost:8080/douzhuanxingyi
+- path: /postgresql
+  rewrite: http://127.0.0.1:53946
+- startWith: /react
+  rewrite: http://localhost:3000
+- startWith: /js
+  locationPath: /Users/diqye
+- startWith: /favicon.ico
+  locationPath: /Users/diqye/Downloads/Untitled Diagram.png
+- startWith: /
+  rewrite: https://www.vipfengxiao.com
+```
 ## 当接口404走本地mock数据
 ```yaml
 port: 80

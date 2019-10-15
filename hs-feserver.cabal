@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 4e5dff6d4a3affe43208d7ef09b4c5b76410dabbb2cd907d01e228cfe6a941e8
+-- hash: 6775dad39c163f2371cc9780fcfa4fd83986d20fa10f37af98f79144a935b816
 
 name:           hs-feserver
 version:        0.1.0.0
@@ -51,6 +51,7 @@ library
     , text
     , transformers
     , unordered-containers
+    , warp-tls
     , yaml
   default-language: Haskell2010
 
@@ -80,5 +81,6 @@ executable hs-feserver-exe
     , text
     , transformers
     , unordered-containers
+    , warp-tls
     , yaml
   default-language: Haskell2010

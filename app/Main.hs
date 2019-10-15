@@ -23,6 +23,7 @@ import Control.Concurrent
 import Data.List
 import Data.String.Conversions
 import Data.Binary.Builder(fromByteString)
+import qualified Network.Wai.Handler.WarpTLS as TLS
 
 data ServerRouter = ServerRouter { serverPath :: String
                                  , serverRewrite :: String
@@ -31,6 +32,9 @@ data ServerRouter = ServerRouter { serverPath :: String
                                  }
 data ServerConfig = ServerConfig { serverPort :: Int
                                  , serverRouters :: [ServerRouter]
+                                 , serverHTTPSPort :: Int
+                                 , serverHTTPSCertificate :: FilePath
+                                 , serverHTTPSKey :: FilePath
                                  }
 
 instance Y.FromJSON ServerRouter where
@@ -52,6 +56,12 @@ instance Y.FromJSON ServerConfig where
     v .: "port"
     <*>
     v .: "routers"
+    <*>
+    (v .: "HTTPSPort" <|> pure 0)
+    <*>
+    (v .: "HTTPSCertificate" <|> pure "")
+    <*>
+    (v .: "HTTPSKey" <|> pure "")
 
 myOnException :: Maybe Request -> SomeException -> IO ()
 myOnException (Just req) e = do
@@ -68,11 +78,21 @@ setting = setPort 7777
 main :: IO ()
 main = do
   hSetBuffering stdout LineBuffering
-  putStrLn "==== v3.0.0 ==="
+  putStrLn "==== v4.0.0 ==="
   config <- parsingConfig
   let sport = serverPort config
   putStrLn $ "==== 服务启动 port:" ++ show sport ++ " ===="
-  runSettings (setPort sport $ setting)  $ toApplication $ createApp
+  forkIO $ runSettings (setPort sport $ setting)  $ toApplication $ createApp
+  let httpsPort = serverHTTPSPort config
+  let httpsserver = do
+        putStrLn $ "==== tls服务启动 port:" ++ show httpsPort ++ " ===="
+        TLS.runTLS
+           (TLS.tlsSettings
+             (serverHTTPSCertificate config)
+             (serverHTTPSKey config))
+           (setPort httpsPort setting)
+           (toApplication createApp)
+  if httpsPort == 0 then pure () else httpsserver
 
   
 createApp :: AppIO
@@ -136,6 +156,7 @@ going tailDirs router req | serverRewrite router /= "none" = do
     let sendMsg resp = do
           let body = HC.responseBody resp
           let headers = HC.responseHeaders resp
+          putStrLn $ "Response status:" ++ show (HC.responseStatus resp)
           putMVar mvar (HC.responseStatus resp, headers, "")
           loopMsg body
           where loopMsg body = do
@@ -144,8 +165,10 @@ going tailDirs router req | serverRewrite router /= "none" = do
                   if bsBody == "" then pure () else loopMsg body
     HC.withResponse clientRq manager sendMsg
   (status,headers,_) <- liftIO $ takeMVar mvar
-  let notIn = ["Content-Encoding"]
+  -- Encoding会影响数据完整性，由于做的是代理功能，所以Encoding操作应由本工具完成。不使用源Encoding
+  let notIn = ["Content-Encoding","Transfer-Encoding"]
   mapM_ (\ (a,b) -> putHeader a b) $ filter (not . (`elem` notIn) . fst) $ headers
+
   guard $ status /= status404
   let bodyfn write flush = do
         let loop' = do
