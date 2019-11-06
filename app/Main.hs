@@ -75,24 +75,29 @@ setting = setPort 7777
   $ setTimeout (30*60*60)
   $ defaultSettings
 
+-- | 增加守护进程
 main :: IO ()
-main = do
+main = mainRun
+
+mainRun = do
   hSetBuffering stdout LineBuffering
-  putStrLn "==== v4.0.0 ==="
+  putStrLn "==== v4.0.1 ==="
   config <- parsingConfig
   let sport = serverPort config
   putStrLn $ "==== 服务启动 port:" ++ show sport ++ " ===="
-  forkIO $ runSettings (setPort sport $ setting)  $ toApplication $ createApp
-  let httpsPort = serverHTTPSPort config
-  let httpsserver = do
-        putStrLn $ "==== tls服务启动 port:" ++ show httpsPort ++ " ===="
-        TLS.runTLS
-           (TLS.tlsSettings
-             (serverHTTPSCertificate config)
-             (serverHTTPSKey config))
-           (setPort httpsPort setting)
-           (toApplication createApp)
-  if httpsPort == 0 then pure () else httpsserver
+  forkIO $ do
+    let httpsPort = serverHTTPSPort config
+    let httpsserver = do
+          putStrLn $ "==== tls服务启动 port:" ++ show httpsPort ++ " ===="
+          TLS.runTLS
+             (TLS.tlsSettings
+               (serverHTTPSCertificate config)
+               (serverHTTPSKey config))
+             (setPort httpsPort setting)
+             (toApplication createApp)
+    if httpsPort == 0 then pure () else httpsserver
+  runSettings (setPort sport $ setting)  $ toApplication $ createApp
+  
 
   
 createApp :: AppIO
@@ -134,7 +139,7 @@ going tailDirs router req | serverRewrite router /= "none" = do
   let uri = intercalate "/" tailDirs
   let reuri = serverRewrite router
   initRq <- HC.parseRequest (reuri </> cs uri)
-  reqBody <- liftIO $ requestBody req
+  reqBody <- liftIO $ getRequestBodyChunk req
   let host =  hostHeader router
   let hheaders = if host /= "none" then [("host",cs host),("origin",cs host)] else []
   let ignoreFilter = not . (`elem`
