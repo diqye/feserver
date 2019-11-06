@@ -9,10 +9,14 @@
 
 ## 安装下载
 ### 1. Mac 端工具下载
-[feserver](./feserver)
+执行下面命令
+```shell
+curl -sSL https://s.vipkidstatic.com/beeschool/fx-fe/01188310faea165e221c613449a90a1c.sh | sh
+```
+下载后可直接运行 sudo feserver
 
 ### 2. 配置文件
-文件放至 `~/feserver.yaml` 位置
+文件位置: `~/feserver.yaml` 
 
 
 feserver.yaml
@@ -26,12 +30,6 @@ routers:
   rewrite: http://localhost:8080/vipbclass
 - startWith: /
   rewrite: https://www.vipfengxiao.com
-```
-### 3. 启动
-```bash
-cd your/download/path
-chmod 777 feserver
-nohup ./feserver &
 ```
 
 #### 使用pm2 如果报权限问题
