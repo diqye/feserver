@@ -32,13 +32,12 @@ resolver: lts-14.13
 #  subdirs:
 #  - auto-update
 #  - wai
-packages:
-- .
 # Dependency packages to be pulled from upstream that are not in the resolver
 # using the same syntax as the packages field.
 # (e.g., acme-missiles-0.3)
 extra-deps: 
-- /Users/diqye/hs/AppM
+- git: https://github.com/diqye/AppM.git
+  commit: ecb1c254fa013812c1f3f566983d2aeacb49c2c4
 
 # Override default flag values for local packages and extra-deps
 # flags: {}

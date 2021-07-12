@@ -115,7 +115,6 @@ toApp router = do
   guard $ matchPathDirs == take len reqDirs
   -- 消费前缀
   mapM_ (consum . cs) matchPathDirs
-  liftIO $ putStrLn $ "guardSuccess:" ++ matchPath
   let tailDirs = drop len reqDirs
   going tailDirs router req
     -- 最终失败，将消费的前缀返还
@@ -134,12 +133,19 @@ toDirs ('/':xs@('/':_)) = toDirs xs
 toDirs ('/':xs) = takeWhile (/='/') xs: toDirs (dropWhile (/='/') xs)
 toDirs xs = takeWhile (/='/') xs: toDirs (dropWhile (/='/') xs)
 
+getRequestBody :: Request -> IO B.ByteString
+getRequestBody req = do
+  chunk <- getRequestBodyChunk req
+  if chunk == "" then pure chunk else do
+    rest <- getRequestBody req
+    pure $ chunk <> rest
 going :: [String] -> ServerRouter -> Request -> AppIO
 going tailDirs router req | serverRewrite router /= "none" = do
   let uri = intercalate "/" tailDirs
   let reuri = serverRewrite router
+  liftIO $ putStrLn $ "Request:"  <> reuri </> uri
   initRq <- HC.parseRequest (reuri </> cs uri)
-  reqBody <- liftIO $ getRequestBodyChunk req
+  reqBody <- liftIO $ getRequestBody req
   let host =  hostHeader router
   let hheaders = if host /= "none" then [("host",cs host),("origin",cs host)] else []
   let ignoreFilter = not . (`elem`
@@ -154,14 +160,11 @@ going tailDirs router req | serverRewrite router /= "none" = do
                         -- , HC.requestVersion = httpVersion req
                         }
   mvar <- liftIO $ newEmptyMVar
-  liftIO $ do
-    putStrLn $ show $ clientRq
   liftIO $ forkIO $ do
     manager <- HC.newManager CT.tlsManagerSettings
     let sendMsg resp = do
           let body = HC.responseBody resp
           let headers = HC.responseHeaders resp
-          putStrLn $ "Response status:" ++ show (HC.responseStatus resp)
           putMVar mvar (HC.responseStatus resp, headers, "")
           loopMsg body
           where loopMsg body = do
@@ -170,7 +173,6 @@ going tailDirs router req | serverRewrite router /= "none" = do
                   if bsBody == "" then pure () else loopMsg body
     HC.withResponse clientRq manager sendMsg
   (status,headers,_) <- liftIO $ takeMVar mvar
-  -- Encoding会影响数据完整性，由于做的是代理功能，所以Encoding操作应由本工具完成。不使用源Encoding
   let notIn = ["Content-Encoding","Transfer-Encoding"]
   mapM_ (\ (a,b) -> putHeader a b) $ filter (not . (`elem` notIn) . fst) $ headers
 
@@ -180,7 +182,11 @@ going tailDirs router req | serverRewrite router /= "none" = do
               (_,_,bs) <- takeMVar mvar
               write $ fromByteString bs
               flush
-              if bs == "" then pure () else loop'
+              if bs == "" then do
+                putStrLn $ reuri </> uri <> "=>" <> show status
+                flush
+                pure () 
+              else loop'
         loop'
   respStream status bodyfn
                      | otherwise = do
