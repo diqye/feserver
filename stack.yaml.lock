@@ -3,10 +3,21 @@
 # For more information, please see the documentation at:
 #   https://docs.haskellstack.org/en/stable/lock_files
 
-packages: []
+packages:
+- completed:
+    name: appm
+    version: 0.1.0.0
+    git: https://github.com/diqye/appm.git
+    pantry-tree:
+      size: 1392
+      sha256: 8f117d997bf6246c492c97589885a6faed66fb0c92f502f9d7d3105c41f0cda3
+    commit: 489424bc6fcf19765d4b7599b5f3716f94571c36
+  original:
+    git: https://github.com/diqye/appm.git
+    commit: 489424bc6fcf19765d4b7599b5f3716f94571c36
 snapshots:
 - completed:
-    size: 525876
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/14/13.yaml
-    sha256: 4a0e79eb194c937cc2a1852ff84d983c63ac348dc6bad5f38d20cab697036eef
-  original: lts-14.13
+    size: 533252
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/16/26.yaml
+    sha256: cdbc5db9c1afe80a5998247939027a0c7db92fa0f20b5cd01596ec3da628b622
+  original: lts-16.26

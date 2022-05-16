@@ -17,7 +17,7 @@
 #
 # resolver: ./custom-snapshot.yaml
 # resolver: https://example.com/snapshots/2018-01-01.yaml
-resolver: lts-14.13
+resolver: lts-16.26
 
 # User packages to be built.
 # Various formats can be used as shown in the example below.
@@ -36,8 +36,8 @@ resolver: lts-14.13
 # using the same syntax as the packages field.
 # (e.g., acme-missiles-0.3)
 extra-deps: 
-- git: https://github.com/diqye/AppM.git
-  commit: ecb1c254fa013812c1f3f566983d2aeacb49c2c4
+- git: https://github.com/diqye/appm.git 
+  commit: 489424bc6fcf19765d4b7599b5f3716f94571c36
 
 # Override default flag values for local packages and extra-deps
 # flags: {}

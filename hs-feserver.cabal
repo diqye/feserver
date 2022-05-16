@@ -1,10 +1,10 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.31.2.
+-- This file has been generated from package.yaml by hpack version 0.34.4.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 6775dad39c163f2371cc9780fcfa4fd83986d20fa10f37af98f79144a935b816
+-- hash: 2f78cb6dafce6b3c33d8c61935288ce03c1667618dc5d8363032ca0c42c2bd13
 
 name:           hs-feserver
 version:        0.1.0.0
@@ -33,8 +33,8 @@ library
   hs-source-dirs:
       src
   build-depends:
-      AppM
-    , aeson
+      aeson
+    , appm
     , base >=4.7 && <5
     , base64-bytestring
     , binary
@@ -63,8 +63,8 @@ executable hs-feserver-exe
       app
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      AppM
-    , aeson
+      aeson
+    , appm
     , base >=4.7 && <5
     , base64-bytestring
     , binary

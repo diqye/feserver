@@ -70,6 +70,7 @@ myOnException (Just req) e = do
   putStrLn $ displayException e
 myOnException _ _ = pure ()
 setting = setPort 7777
+  $ setHost "*" --支持IPv6和IPv4,defaultSettings只支持IPv4
   $ setOnException myOnException
   $ setOnExceptionResponse exceptionResponseForDebug
   $ setTimeout (30*60*60)
